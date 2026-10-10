@@ -1,0 +1,1257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Queen Silk — Sarees Straight From the Loom</title>
+<meta name="description" content="Sarees woven on our own looms in Surat since 1998. Shop direct at mill price, watch every saree being made, design your own colours, or partner with us as a retailer.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://images.unsplash.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root{
+  --bg:#f5efe6; --bg-2:#ece2d3; --card:#fffcf7; --ink:#17110f; --ink-2:#5c514b; --night:#120c0b;
+  --maroon:#5b1a24; --maroon-2:#7a2532; --gold:#c9a24a; --gold-2:#e6c776; --leaf:#2f5d50;
+  --line:rgba(23,17,15,.12); --line-l:rgba(245,239,230,.14);
+  --display:'Cormorant Garamond',Georgia,serif; --body:'Manrope',system-ui,sans-serif;
+  --out:cubic-bezier(.16,1,.3,1); --io:cubic-bezier(.76,0,.24,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:auto}
+body{font-family:var(--body);background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body.locked{overflow:hidden}
+img{display:block;width:100%;height:100%;object-fit:cover}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+input,select{font:inherit}
+.wrap{width:min(1320px,100% - 40px);margin-inline:auto}
+.display{font-family:var(--display);font-weight:600;line-height:.95;letter-spacing:-.02em}
+.display em{font-style:italic;font-weight:500}
+.eyebrow{font-size:11.5px;font-weight:800;letter-spacing:.22em;text-transform:uppercase}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:16px 26px;border-radius:999px;font-weight:700;font-size:14.5px;transition:transform .5s var(--out),background .3s,color .3s}
+.btn:hover{transform:translateY(-3px)}
+.btn-gold{background:var(--gold-2);color:var(--ink)} .btn-gold:hover{background:#f1d796}
+.btn-dark{background:var(--ink);color:var(--bg)} .btn-dark:hover{background:var(--maroon-2)}
+.btn-ghost{border:1.5px solid currentColor}
+.btn svg{width:16px;height:16px}
+
+/* =================== Cursor: needle ring + thread trail =================== */
+html.has-cursor,html.has-cursor *{cursor:none!important}
+html.has-cursor input,html.has-cursor select,html.has-cursor textarea{cursor:text!important}
+#trail{position:fixed;inset:0;z-index:998;pointer-events:none}
+.ring{position:fixed;left:0;top:0;z-index:999;pointer-events:none;width:36px;height:36px;margin:-18px 0 0 -18px;border-radius:50%;border:1.5px solid var(--gold);display:grid;place-items:center;transition:width .5s var(--out),height .5s var(--out),margin .5s var(--out),background .35s,border-color .35s}
+.ring::after{content:"";width:4px;height:4px;border-radius:50%;background:var(--gold);transition:opacity .2s}
+.ring span{position:absolute;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);opacity:0;transition:opacity .25s;white-space:nowrap}
+.ring[data-state=link]{width:58px;height:58px;margin:-29px 0 0 -29px;background:rgba(201,162,74,.16)}
+.ring[data-state=play],.ring[data-state=view],.ring[data-state=drag],.ring[data-state=flip]{width:96px;height:96px;margin:-48px 0 0 -48px;background:var(--gold-2);border-color:var(--gold-2)}
+.ring[data-state=play] span,.ring[data-state=view] span,.ring[data-state=drag] span,.ring[data-state=flip] span{opacity:1}
+.ring[data-state=play]::after,.ring[data-state=view]::after,.ring[data-state=drag]::after,.ring[data-state=flip]::after,.ring[data-state=link]::after{opacity:0}
+.ring.press{transform:scale(.8)}
+.ring{transition:width .5s var(--out),height .5s var(--out),margin .5s var(--out),background .35s,border-color .35s,transform .2s}
+
+/* =================== Loader =================== */
+.loader{position:fixed;inset:0;z-index:500;display:grid;place-items:center;color:var(--bg)}
+.ld-cols{position:absolute;inset:0;display:flex}
+.ld-cols i{flex:1;background:var(--night);transition:transform 1s var(--io)}
+.loader.done .ld-cols i{transform:translateY(-101%)}
+.loader.done .ld-cols i:nth-child(2){transition-delay:.06s}.loader.done .ld-cols i:nth-child(3){transition-delay:.12s}.loader.done .ld-cols i:nth-child(4){transition-delay:.18s}.loader.done .ld-cols i:nth-child(5){transition-delay:.24s}
+.ld-in{position:relative;text-align:center;transition:opacity .5s,transform .8s var(--io)}
+.loader.done .ld-in{opacity:0;transform:translateY(-40px)}
+.ld-num{font-family:var(--display);font-size:clamp(90px,16vw,200px);font-weight:600;line-height:.9}
+.ld-num small{font-size:.35em;color:var(--gold-2);vertical-align:top}
+.ld-weave{width:min(360px,70vw);height:14px;margin:26px auto 14px;border-radius:3px;overflow:hidden;background:repeating-linear-gradient(90deg,rgba(245,239,230,.16) 0 2px,transparent 2px 6px)}
+.ld-weave span{display:block;height:100%;width:0;background:repeating-linear-gradient(90deg,var(--gold) 0 4px,var(--maroon-2) 4px 8px,var(--gold-2) 8px 10px);transition:width .3s}
+.ld-in p{font-size:12px;letter-spacing:.24em;text-transform:uppercase;opacity:.6}
+
+/* =================== Header =================== */
+header{position:fixed;top:0;left:0;right:0;z-index:70;color:var(--bg);transition:background .5s,color .5s,backdrop-filter .5s}
+header.on-light{color:var(--ink);background:rgba(245,239,230,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+header.on-dark{color:var(--bg);background:rgba(18,12,11,.55);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.nav{display:flex;align-items:center;justify-content:space-between;height:84px}
+.logo{font-family:var(--display);font-size:30px;font-weight:700;letter-spacing:-.01em}
+.logo em{font-style:italic;font-weight:600;color:var(--gold-2);transition:color .5s}
+header.on-light .logo em{color:var(--maroon-2)}
+.logo small{font-family:var(--body);font-size:9px;letter-spacing:.34em;font-weight:700;margin-left:8px;opacity:.7;vertical-align:middle}
+.nav-links{display:flex;gap:34px;font-size:13.5px;font-weight:700;letter-spacing:.04em}
+.nav-links a{position:relative;overflow:hidden;display:inline-block;height:1.4em;line-height:1.4em}
+.nav-links a span{display:block;transition:transform .5s var(--out)}
+.nav-links a span::after{content:attr(data-t);display:block}
+.nav-links a:hover span{transform:translateY(-1.4em)}
+.nav-r{display:flex;align-items:center;gap:22px;font-size:13.5px;font-weight:700}
+.bag-btn{display:flex;align-items:center;gap:8px}
+.bag-btn b{width:24px;height:24px;border-radius:50%;border:1.5px solid currentColor;display:grid;place-items:center;font-size:11px}
+.menu-btn{display:none;font-size:13.5px;font-weight:800;letter-spacing:.1em}
+.mnav{position:fixed;inset:0;z-index:65;background:var(--maroon);color:var(--bg);display:flex;flex-direction:column;justify-content:center;padding:0 26px;transform:translateY(-100%);transition:transform .9s var(--io)}
+.menu-open .mnav{transform:none}
+.mnav a{font-family:var(--display);font-size:52px;font-weight:600;line-height:1.15;opacity:0;transform:translateY(30px);transition:.6s var(--out)}
+.menu-open .mnav a{opacity:1;transform:none}
+.menu-open .mnav a:nth-child(2){transition-delay:.05s}.menu-open .mnav a:nth-child(3){transition-delay:.1s}.menu-open .mnav a:nth-child(4){transition-delay:.15s}.menu-open .mnav a:nth-child(5){transition-delay:.2s}
+
+/* =================== 3D Hero =================== */
+.hero{height:620vh;position:relative;background:var(--night)}
+.hero-pin{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;color:var(--bg);background:var(--hbg,#1d0d10)}
+.h-bgword{position:absolute;left:0;top:50%;transform:translate(var(--bx,0),-50%);font-family:var(--display);font-style:italic;font-weight:600;font-size:34vw;line-height:.8;white-space:nowrap;color:transparent;-webkit-text-stroke:1px rgba(230,199,118,.14);z-index:0;pointer-events:none}
+#gl{position:absolute;inset:0;width:100%;height:100%;z-index:1}
+.h-fallback{position:absolute;right:10vw;top:11vh;height:78vh;aspect-ratio:3/4;border-radius:18px;overflow:hidden;z-index:1;display:none}
+.h-fallback img{position:absolute;inset:0;opacity:0;transition:opacity 1s,transform 1.4s var(--out);transform:scale(1.08)}
+.h-fallback img.on{opacity:1;transform:none}
+.no-gl .h-fallback{display:block}
+.h-ui{position:absolute;inset:0;z-index:2;pointer-events:none}
+.h-ui>*{pointer-events:auto}
+.h-left{position:absolute;left:max(20px,calc((100vw - 1320px)/2));bottom:12vh;max-width:min(520px,40vw)}
+.h-count{font-family:var(--display);font-size:22px;font-weight:600;display:flex;align-items:baseline;gap:8px;color:var(--gold-2)}
+.h-count b{font-size:56px;line-height:1;color:var(--bg)}
+.h-name{font-family:var(--display);font-weight:600;font-size:clamp(54px,6vw,100px);line-height:.92;letter-spacing:-.02em;margin:10px 0 18px;overflow:hidden;padding-bottom:.06em}
+.h-name .wd{display:inline-block;white-space:nowrap}
+.h-name .c{display:inline-block;animation:charIn 1s var(--out) both}
+.h-name .it{font-style:italic;color:var(--gold-2)}
+@keyframes charIn{from{transform:translateY(105%) rotate(10deg);opacity:0}}
+.h-meta{display:flex;gap:26px;align-items:center;flex-wrap:wrap}
+.h-meta.swap{animation:fadeUp .8s var(--out) both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}}
+.h-meta .fab{font-size:15px;color:rgba(245,239,230,.75)}
+.h-meta .pr{font-family:var(--display);font-size:32px;font-weight:600}
+.h-meta .pr s{font-family:var(--body);font-size:14px;opacity:.5;margin-left:6px}
+.h-ctas{display:flex;gap:10px;margin-top:26px;flex-wrap:wrap}
+.h-ctas .btn-ghost{color:var(--bg)}
+.h-top{position:absolute;left:max(20px,calc((100vw - 1320px)/2));top:118px}
+.h-top .eyebrow{color:var(--gold-2)}
+.h-top h2{font-family:var(--display);font-size:clamp(22px,2vw,30px);font-weight:500;font-style:italic;margin-top:8px;max-width:380px;line-height:1.2;color:rgba(245,239,230,.85)}
+.h-list{position:absolute;right:max(20px,calc((100vw - 1320px)/2));bottom:12vh;display:flex;flex-direction:column;gap:4px;min-width:200px}
+.h-list button{display:grid;grid-template-columns:30px 1fr;gap:4px 10px;text-align:left;font-size:13px;font-weight:700;color:rgba(245,239,230,.45);padding:7px 0;transition:color .4s}
+.h-list button span{font-family:var(--display);font-size:15px}
+.h-list button i{grid-column:2;height:1px;background:rgba(245,239,230,.15);position:relative;overflow:hidden}
+.h-list button i b{position:absolute;inset:0;background:var(--gold-2);transform-origin:left;transform:scaleX(0)}
+.h-list button.on{color:var(--bg)}
+.h-hint{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);font-size:11px;font-weight:800;letter-spacing:.24em;text-transform:uppercase;display:flex;flex-direction:column;align-items:center;gap:10px;color:rgba(245,239,230,.6);transition:opacity .5s}
+.h-hint i{width:22px;height:34px;border:1.5px solid currentColor;border-radius:12px;position:relative}
+.h-hint i::after{content:"";position:absolute;left:50%;top:7px;width:3px;height:7px;margin-left:-1.5px;border-radius:2px;background:currentColor;animation:wheel 1.6s infinite}
+@keyframes wheel{to{transform:translateY(10px);opacity:0}}
+
+/* =================== Manifesto (scroll-lit words) =================== */
+.manifesto{padding:170px 0 140px}
+.manifesto .eyebrow{color:var(--gold)}
+.lit{font-family:var(--display);font-weight:500;font-size:clamp(34px,4.8vw,72px);line-height:1.1;letter-spacing:-.01em;margin-top:28px;max-width:1180px}
+.lit .w{opacity:.14;transition:opacity .25s}
+.lit .w.on{opacity:1}
+.lit .pic{display:inline-block;width:1.6em;height:.8em;border-radius:999px;overflow:hidden;vertical-align:-.05em;transform:scale(0);transition:transform .8s var(--out)}
+.lit .pic.on{transform:none}
+.lit em{color:var(--maroon-2)}
+.odos{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:90px;border-top:1px solid var(--line);padding-top:30px}
+.odo{font-family:var(--display);font-weight:600;font-size:clamp(46px,5vw,78px);line-height:1;display:flex;overflow:hidden;height:1em}
+.odo .col{display:flex;flex-direction:column;transition:transform 2.2s var(--out)}
+.odo .col span{height:1em;line-height:1}
+.odos small{display:block;color:var(--ink-2);font-size:13px;font-weight:600;margin-top:8px}
+
+/* =================== The Making: flipping 3D deck =================== */
+.making{height:500vh;position:relative;background:var(--night);color:var(--bg)}
+.mk-pin{position:sticky;top:0;height:100vh;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:6vw;padding:0 max(20px,calc((100vw - 1320px)/2))}
+.mk-txt .eyebrow{color:var(--gold-2)}
+.mk-big{font-family:var(--display);font-weight:600;font-size:clamp(120px,15vw,230px);line-height:.8;color:transparent;-webkit-text-stroke:1px rgba(230,199,118,.5);height:.8em;overflow:hidden;margin:18px 0 10px}
+.mk-big div{transition:transform 1s var(--out)}
+.mk-big div span{display:block;height:.8em}
+.mk-step{min-height:300px;position:relative}
+.mk-step article{position:absolute;inset:0;opacity:0;transform:translateY(30px);transition:opacity .6s,transform .9s var(--out);pointer-events:none}
+.mk-step article.on{opacity:1;transform:none;pointer-events:auto}
+.mk-step h3{font-family:var(--display);font-size:clamp(40px,4.4vw,66px);font-weight:600;line-height:1}
+.mk-step p{color:rgba(245,239,230,.7);font-size:17px;max-width:460px;margin:16px 0 22px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
+.chips span{border:1px solid var(--line-l);padding:7px 14px;border-radius:999px;font-size:12.5px;font-weight:600}
+.play-link{display:inline-flex;align-items:center;gap:12px;font-weight:800;font-size:14px;color:var(--gold-2)}
+.play-link i{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--gold-2);display:grid;place-items:center;transition:background .3s,transform .5s var(--out)}
+.play-link:hover i{background:var(--gold-2);transform:rotate(90deg)}
+.play-link:hover i svg{fill:var(--ink)}
+.play-link svg{width:13px;fill:var(--gold-2);margin-left:2px}
+.deck{position:relative;height:72vh;perspective:1600px}
+.dcard{position:absolute;inset:0;margin:auto;width:min(100%,460px);aspect-ratio:3/4;max-height:72vh;border-radius:22px;overflow:hidden;transform-origin:50% 100%;will-change:transform;box-shadow:0 40px 80px -30px rgba(0,0,0,.7)}
+.dcard .cap{position:absolute;left:18px;bottom:18px;background:rgba(18,12,11,.6);backdrop-filter:blur(8px);padding:8px 14px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.06em}
+.mk-dots{display:flex;gap:6px;margin-top:30px}
+.mk-dots i{width:34px;height:3px;border-radius:3px;background:var(--line-l);overflow:hidden;position:relative}
+.mk-dots i b{position:absolute;inset:0;background:var(--gold-2);transform-origin:left;transform:scaleX(0)}
+
+/* =================== Reels: 3D ring =================== */
+.reels{padding:140px 0 120px;overflow:hidden;background:var(--bg)}
+.reels-head{display:flex;justify-content:space-between;align-items:end;gap:24px;flex-wrap:wrap}
+.reels-head h2{font-size:clamp(46px,6.4vw,100px)}
+.reels-head h2 em{color:var(--maroon-2)}
+.reels-head p{max-width:400px;color:var(--ink-2)}
+.stage{height:620px;perspective:1700px;margin-top:40px;position:relative;touch-action:pan-y;user-select:none}
+.ring3d{position:absolute;left:50%;top:50%;width:0;height:0;transform-style:preserve-3d}
+.rcard{position:absolute;width:250px;height:444px;left:-125px;top:-222px;border-radius:20px;overflow:hidden;color:#fff;transform-style:preserve-3d}
+.rcard::after{content:"";position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,.3),transparent 25%,transparent 55%,rgba(0,0,0,.85))}
+.rcard img{pointer-events:none}
+.rcard .rt{position:absolute;top:14px;left:14px;right:14px;z-index:2;display:flex;justify-content:space-between;font-size:11.5px;font-weight:700}
+.rcard .rb{position:absolute;left:16px;right:16px;bottom:18px;z-index:2}
+.rcard .rb small{font-size:10.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-2)}
+.rcard h4{font-family:var(--display);font-size:26px;font-weight:600;line-height:1.02;margin-top:6px}
+.rcard .pp{position:absolute;inset:0;margin:auto;width:62px;height:62px;border-radius:50%;z-index:2;background:rgba(255,255,255,.18);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.5);display:grid;place-items:center;opacity:0;transform:scale(.6);transition:.5s var(--out)}
+.rcard.front .pp{opacity:1;transform:none}
+.rcard .pp svg{width:20px;fill:#fff;margin-left:3px}
+.ring-floor{position:absolute;left:50%;bottom:10px;width:min(900px,90vw);height:60px;transform:translateX(-50%);background:radial-gradient(ellipse at center,rgba(23,17,15,.22),transparent 70%);filter:blur(6px)}
+.ring-hint{text-align:center;font-size:12px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-2)}
+
+/* =================== Weave studio =================== */
+.studio{padding:130px 0;background:var(--maroon);color:var(--bg);position:relative;overflow:hidden}
+.studio-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:6vw;align-items:center}
+.loom-box{position:relative;border-radius:24px;overflow:hidden;background:#1a0c0e;aspect-ratio:4/5;box-shadow:0 40px 80px -30px rgba(0,0,0,.6)}
+.loom-box canvas{position:absolute;inset:0;width:100%;height:100%}
+.loom-tag{position:absolute;left:16px;top:16px;z-index:2;background:rgba(18,12,11,.6);backdrop-filter:blur(8px);padding:8px 14px;border-radius:999px;font-size:12px;font-weight:700;display:flex;gap:8px;align-items:center}
+.loom-tag i{width:7px;height:7px;border-radius:50%;background:#ff5a4a;animation:blink 1.2s infinite}
+@keyframes blink{50%{opacity:.2}}
+.studio h2{font-size:clamp(44px,5.4vw,86px)}
+.studio h2 em{color:var(--gold-2)}
+.studio .lead{color:rgba(245,239,230,.75);font-size:17px;margin:18px 0 10px;max-width:480px}
+.pick h4{font-size:11.5px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,239,230,.6);margin:26px 0 12px}
+.sws{display:flex;gap:10px;flex-wrap:wrap}
+.sw{width:42px;height:42px;border-radius:50%;background:var(--c);border:3px solid var(--maroon);box-shadow:0 0 0 1px rgba(245,239,230,.25);transition:transform .4s var(--out),box-shadow .3s}
+.sw:hover{transform:scale(1.12)}
+.sw.on{box-shadow:0 0 0 2px var(--gold-2);transform:scale(1.12)}
+.motifs{display:flex;gap:8px;flex-wrap:wrap}
+.motifs button{padding:10px 18px;border-radius:999px;border:1px solid rgba(245,239,230,.25);font-weight:700;font-size:13.5px;transition:.3s}
+.motifs button.on,.motifs button:hover{background:var(--bg);color:var(--ink)}
+.recipe{margin-top:30px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.recipe small{color:rgba(245,239,230,.6);font-size:13px}
+
+/* =================== Collection: tilt + FLIP filter =================== */
+.shop{padding:140px 0}
+.shop-head{display:flex;justify-content:space-between;align-items:end;gap:24px;flex-wrap:wrap;margin-bottom:46px}
+.shop-head h2{font-size:clamp(46px,6.4vw,100px)}
+.shop-head h2 em{color:var(--maroon-2)}
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.filters button{padding:10px 18px;border-radius:999px;border:1px solid var(--line);font-weight:700;font-size:13.5px;transition:.3s}
+.filters button.on,.filters button:hover{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:34px 22px}
+.pcard{perspective:900px}
+.pcard[hidden]{display:none}
+.tilt{position:relative;border-radius:18px;overflow:hidden;aspect-ratio:3/4;transform-style:preserve-3d;transition:transform .6s var(--out);background:var(--bg-2)}
+.tilt.live{transition:transform .08s linear}
+.tilt img{position:absolute;inset:0;transform:scale(1.04)}
+.glare{position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(circle at var(--gx,50%) var(--gy,50%),rgba(255,255,255,.35),transparent 45%);opacity:0;transition:opacity .4s;mix-blend-mode:soft-light}
+.pcard:hover .glare{opacity:1}
+.ptag{position:absolute;top:14px;left:14px;z-index:3;background:var(--card);font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:6px 11px;border-radius:999px;transform:translateZ(40px)}
+.pact{position:absolute;left:14px;right:14px;bottom:14px;z-index:3;display:flex;gap:8px;transform:translateZ(50px)}
+.pact button{flex:1;background:var(--card);padding:12px;border-radius:999px;font-size:13px;font-weight:800;transition:background .3s,color .3s}
+.pact button:hover{background:var(--ink);color:var(--bg)}
+.pact .pw{flex:0 0 44px;display:grid;place-items:center;padding:0}
+.pact .pw svg{width:13px;fill:currentColor;margin-left:2px}
+.pinfo{display:flex;justify-content:space-between;gap:12px;padding-top:14px}
+.pinfo h3{font-family:var(--display);font-size:25px;font-weight:600;line-height:1.05}
+.pinfo small{color:var(--ink-2);font-size:13px}
+.pinfo .pr{text-align:right;font-weight:800;white-space:nowrap}
+.pinfo .pr s{display:block;font-weight:500;font-size:12px;color:var(--ink-2)}
+.wipe{clip-path:inset(0 0 100% 0);transition:clip-path 1.2s var(--io),transform .6s var(--out)}
+.wipe.in{clip-path:inset(0 0 0 0)}
+
+/* =================== Paths: 3D flip cards =================== */
+.paths{padding:20px 0 140px}
+.paths-head{text-align:center;margin-bottom:50px}
+.paths-head h2{font-size:clamp(44px,5.6vw,90px);margin-top:14px}
+.paths-head h2 em{color:var(--maroon-2)}
+.flips{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.flip{perspective:2000px;height:640px}
+.flip-in{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform 1.1s var(--io)}
+.flip.on .flip-in{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;border-radius:28px;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.face.front{color:var(--bg)}
+.face.front::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 30%,rgba(18,12,11,.85))}
+.face.front .fc{position:absolute;left:36px;right:36px;bottom:34px;z-index:2}
+.face.front h3{font-family:var(--display);font-size:clamp(44px,4.6vw,72px);font-weight:600;line-height:.95;margin:10px 0 22px}
+.face.front .eyebrow{color:var(--gold-2)}
+.face.back{transform:rotateY(180deg);background:var(--card);border:1px solid var(--line);padding:40px;display:flex;flex-direction:column}
+.face.back.dark{background:var(--ink);color:var(--bg);border:0}
+.face.back h3{font-family:var(--display);font-size:clamp(36px,3.4vw,52px);font-weight:600;line-height:1;margin:12px 0 14px}
+.face.back p{color:var(--ink-2)}
+.face.back.dark p{color:rgba(245,239,230,.7)}
+.ticks{list-style:none;display:grid;gap:12px;margin:26px 0 auto}
+.ticks li{display:flex;gap:12px;align-items:center;font-weight:600}
+.ticks li::before{content:"✦";color:var(--gold)}
+.back-btn{position:absolute;top:22px;right:22px;width:42px;height:42px;border-radius:50%;border:1px solid currentColor;display:grid;place-items:center;font-size:18px;opacity:.7}
+.tform{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:22px}
+.tform input,.tform select{width:100%;padding:15px 16px;border-radius:12px;border:1px solid var(--line-l);background:rgba(245,239,230,.06);color:var(--bg);outline:none;transition:border .3s}
+.tform input:focus,.tform select:focus{border-color:var(--gold-2)}
+.tform input::placeholder{color:rgba(245,239,230,.45)}
+.tform select option{color:var(--ink)}
+.tform .full{grid-column:1/-1}
+.tok{display:none;margin-top:24px;font-family:var(--display);font-size:30px;line-height:1.15;color:var(--gold-2)}
+
+/* =================== Testimonials: swipe deck =================== */
+.voices{padding:20px 0 150px;overflow:hidden}
+.voices-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:6vw;align-items:center}
+.voices h2{font-size:clamp(44px,5.4vw,84px);margin:14px 0 18px}
+.voices h2 em{color:var(--maroon-2)}
+.voices .eyebrow{color:var(--gold)}
+.v-ctrl{display:flex;gap:10px;margin-top:30px;align-items:center}
+.circ{width:56px;height:56px;border-radius:50%;border:1.5px solid var(--ink);display:grid;place-items:center;transition:background .3s,color .3s}
+.circ:hover{background:var(--ink);color:var(--bg)}
+.circ svg{width:18px}
+.tdeck{position:relative;height:420px;touch-action:pan-y}
+.tcard{position:absolute;inset:0;margin:auto;width:min(100%,520px);height:360px;border-radius:26px;padding:36px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 30px 60px -30px rgba(23,17,15,.35);transition:transform .7s var(--out);user-select:none}
+.tcard.drag{transition:none}
+.tcard p{font-family:var(--display);font-size:clamp(24px,2.3vw,32px);font-weight:500;line-height:1.2}
+.tcard .by{display:flex;align-items:center;gap:12px;font-size:14px}
+.tcard .by i{width:46px;height:46px;border-radius:50%;overflow:hidden;flex:none}
+.tcard .by b{display:block}
+.tcard .kind{margin-left:auto;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;padding:6px 11px;border-radius:999px;border:1px solid currentColor;opacity:.7}
+.tcard .stars{color:var(--gold);letter-spacing:3px}
+.t0{background:var(--card)} .t1{background:var(--maroon);color:var(--bg)} .t2{background:var(--leaf);color:var(--bg)} .t3{background:var(--gold-2)} .t4{background:var(--ink);color:var(--bg)}
+
+/* =================== Stores =================== */
+.stores{padding:0 0 140px}
+.stores-box{background:var(--bg-2);border-radius:32px;padding:56px;display:grid;grid-template-columns:.85fr 1.15fr;gap:5vw}
+.stores h2{font-size:clamp(40px,4.6vw,72px);margin-top:14px}
+.stores h2 em{color:var(--maroon-2)}
+.stores .eyebrow{color:var(--gold)}
+.st-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:30px}
+.st-tabs button{padding:10px 16px;border-radius:999px;border:1px solid var(--line);font-weight:700;font-size:13.5px;transition:.3s}
+.st-tabs button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.st-list{display:grid;gap:10px;align-content:start}
+.store{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:22px 24px;border-radius:18px;background:var(--card);animation:slideIn .8s var(--out) both}
+.store:nth-child(2){animation-delay:.07s}.store:nth-child(3){animation-delay:.14s}
+@keyframes slideIn{from{opacity:0;transform:translateX(40px)}}
+.store b{display:block;font-size:17px}
+.store small{color:var(--ink-2)}
+.store a{font-weight:800;font-size:14px;color:var(--maroon-2);white-space:nowrap}
+
+/* =================== Footer =================== */
+footer{background:var(--night);color:var(--bg);padding:120px 0 30px;overflow:hidden}
+.f-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:40px}
+.f-top h3{font-family:var(--display);font-size:clamp(36px,3.8vw,58px);font-weight:600;line-height:1}
+.f-top h3 em{color:var(--gold-2)}
+.f-top h5{font-size:11.5px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-2);margin-bottom:16px}
+.f-top a{display:block;padding:5px 0;color:rgba(245,239,230,.75);transition:color .3s}
+.f-top a:hover{color:#fff}
+.news{display:flex;border-bottom:1px solid var(--line-l);margin-top:26px;max-width:420px}
+.news input{flex:1;min-width:0;background:none;border:0;padding:14px 0;color:#fff;outline:none}
+.news input::placeholder{color:rgba(245,239,230,.45)}
+.news button{font-weight:800;color:var(--gold-2)}
+.giant{display:flex;justify-content:center;font-family:var(--display);font-weight:700;font-size:clamp(80px,19vw,310px);line-height:.8;margin:100px 0 30px;color:rgba(245,239,230,.92)}
+.giant span{display:inline-block;transform-origin:50% 100%;transition:transform .5s var(--out),color .4s}
+.giant span.it{font-style:italic;color:var(--gold-2)}
+.f-bot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:13px;color:rgba(245,239,230,.5);border-top:1px solid var(--line-l);padding-top:24px}
+
+/* =================== Story viewer (circle reveal) =================== */
+.viewer{position:fixed;inset:0;z-index:150;background:rgba(14,10,9,.96);display:grid;place-items:center;clip-path:circle(0 at var(--cx,50%) var(--cy,50%));transition:clip-path .9s var(--io);pointer-events:none}
+.viewer.open{clip-path:circle(150% at var(--cx,50%) var(--cy,50%));pointer-events:auto}
+.vbox{position:relative;height:min(88vh,800px);aspect-ratio:9/16;max-width:calc(100vw - 24px);border-radius:22px;overflow:hidden;background:#000;color:#fff}
+.vmedia{position:absolute;inset:0}
+.vmedia img{animation:kb 7s ease-out forwards}
+@keyframes kb{from{transform:scale(1.18)}}
+.vmedia video{width:100%;height:100%;object-fit:cover}
+.vbox::after{content:"";position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,.5),transparent 22%,transparent 58%,rgba(0,0,0,.88));pointer-events:none}
+.vbars{position:absolute;top:12px;left:12px;right:12px;display:flex;gap:4px;z-index:3}
+.vbars i{flex:1;height:3px;background:rgba(255,255,255,.3);border-radius:3px;overflow:hidden;position:relative}
+.vbars i b{position:absolute;inset:0;background:#fff;transform-origin:left;transform:scaleX(0)}
+.vbars i.done b{transform:none}
+.vbars i.run b{animation:fill var(--d,6s) linear forwards}
+@keyframes fill{to{transform:none}}
+.vhead{position:absolute;top:26px;left:14px;right:14px;z-index:4;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700}
+.vhead .av{width:32px;height:32px;border-radius:50%;background:var(--gold-2);color:var(--ink);display:grid;place-items:center;font-family:var(--display);font-size:18px}
+.vclose{margin-left:auto;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.15);font-size:17px}
+.vfoot{position:absolute;left:20px;right:20px;bottom:24px;z-index:4}
+.vfoot small{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-2)}
+.vfoot h4{font-family:var(--display);font-size:34px;font-weight:600;line-height:1.02;margin:8px 0 16px}
+.tap{position:absolute;top:80px;bottom:140px;width:45%;z-index:3}
+.tap.l{left:0}.tap.r{right:0}
+
+/* =================== Bag / toast / WA =================== */
+.shade{position:fixed;inset:0;z-index:90;background:rgba(18,12,11,.45);opacity:0;pointer-events:none;transition:.5s}
+.shade.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(440px,100%);z-index:95;background:var(--card);clip-path:inset(0 0 0 100%);transition:clip-path .9s var(--io);display:flex;flex-direction:column}
+.drawer.on{clip-path:inset(0)}
+.dh{display:flex;justify-content:space-between;align-items:center;padding:28px}
+.dh h3{font-family:var(--display);font-size:38px;font-weight:600}
+.dh button{width:42px;height:42px;border-radius:50%;background:var(--bg-2)}
+.di{flex:1;overflow:auto;padding:0 28px}
+.ditem{display:grid;grid-template-columns:76px 1fr auto;gap:16px;align-items:center;padding:14px 0;border-top:1px solid var(--line);animation:slideIn .6s var(--out) both}
+.ditem .im{height:96px;border-radius:12px;overflow:hidden}
+.ditem h4{font-family:var(--display);font-size:22px;font-weight:600;line-height:1.05}
+.ditem small{color:var(--ink-2)}
+.ditem button{font-size:12px;font-weight:700;color:var(--ink-2);text-decoration:underline}
+.dempty{text-align:center;color:var(--ink-2);padding:60px 0}
+.df{padding:24px 28px;background:var(--bg)}
+.df .row{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;font-weight:700}
+.df .row b{font-family:var(--display);font-size:32px}
+.df .btn{width:100%;justify-content:center}
+.toast{position:fixed;left:50%;top:24px;z-index:160;transform:translate(-50%,-180%);background:var(--ink);color:var(--bg);padding:12px 12px 12px 20px;border-radius:999px;font-size:14px;font-weight:600;display:flex;gap:14px;align-items:center;transition:transform .7s var(--out);white-space:nowrap}
+.toast.on{transform:translate(-50%,0)}
+.toast button{background:var(--gold-2);color:var(--ink);padding:8px 14px;border-radius:999px;font-weight:800;font-size:13px}
+.wa{position:fixed;right:22px;bottom:22px;z-index:80;width:58px;height:58px;border-radius:50%;background:#1fa85a;display:grid;place-items:center;box-shadow:0 14px 30px -10px rgba(0,0,0,.45);transition:transform .5s var(--out)}
+.wa:hover{transform:scale(1.1) rotate(-8deg)}
+.wa svg{width:28px;fill:#fff}
+
+.up{opacity:0;transform:translateY(40px);transition:opacity 1s var(--out),transform 1.1s var(--out)}
+.up.in{opacity:1;transform:none}
+
+/* =================== Responsive =================== */
+@media (max-width:1100px){
+  .grid{grid-template-columns:repeat(3,1fr)}
+  .f-top{grid-template-columns:1fr 1fr}
+}
+@media (max-width:900px){
+  .wrap{width:calc(100% - 28px)}
+  .nav{height:70px}
+  .nav-links,.nav-r .hide-m{display:none}
+  .menu-btn{display:block}
+  .h-bgword{font-size:60vw}
+  .h-top{display:none}
+  .h-left{left:14px;right:14px;bottom:76px;max-width:none}
+  .h-left::before{content:"";position:absolute;left:-14px;right:-14px;bottom:-76px;height:calc(100% + 140px);background:linear-gradient(transparent,rgba(18,12,11,.9) 45%);z-index:-1}
+  .h-name{font-size:clamp(46px,13vw,72px)}
+  .h-count b{font-size:40px}
+  .h-list{display:none}
+  .h-hint{display:none}
+  .h-fallback{left:50%;right:auto;transform:translateX(-50%);top:90px;height:56vh}
+  .odos{grid-template-columns:1fr 1fr;gap:30px}
+  .mk-pin{grid-template-columns:1fr;grid-template-rows:auto 1fr;gap:10px;padding-top:90px;align-items:start}
+  .mk-big{font-size:90px;margin:8px 0}
+  .mk-step{min-height:230px}
+  .mk-step p{font-size:15px;margin:10px 0 14px}
+  .mk-step .chips{display:none}
+  .deck{height:42vh}
+  .dcard{width:auto;height:42vh;max-height:none}
+  .mk-dots{display:none}
+  .stage{height:520px}
+  .rcard{width:200px;height:356px;left:-100px;top:-178px}
+  .studio-grid{grid-template-columns:1fr;gap:40px}
+  .grid{grid-template-columns:repeat(2,1fr);gap:26px 12px}
+  .pinfo h3{font-size:19px}
+  .pact button{font-size:11.5px;padding:10px}
+  .flips{grid-template-columns:1fr}
+  .flip{height:600px}
+  .face.back{padding:28px 22px}
+  .face.front .fc{left:24px;right:24px}
+  .tform{grid-template-columns:1fr}
+  .voices-grid{grid-template-columns:1fr;gap:20px}
+  .tcard{height:340px;padding:28px}
+  .stores-box{grid-template-columns:1fr;padding:30px 20px}
+  .f-top{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body class="locked">
+
+<canvas id="trail" aria-hidden="true"></canvas>
+<div class="ring" id="ring"><span id="ringTxt"></span></div>
+
+<!-- Loader -->
+<div class="loader" id="loader">
+  <div class="ld-cols"><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="ld-in"><div class="eyebrow" style="color:var(--gold-2);margin-bottom:10px">Queen Silk</div><div class="ld-num"><span id="ldNum">0</span><small>%</small></div><div class="ld-weave"><span id="ldBar"></span></div><p>Setting threads on the loom</p></div>
+</div>
+
+<!-- Header -->
+<header>
+  <div class="wrap nav">
+    <a href="#top" class="logo">Queen <em>Silk</em></a>
+    <nav class="nav-links">
+      <a href="#making"><span data-t="The Making">The Making</span></a>
+      <a href="#reels"><span data-t="Reels">Reels</span></a>
+      <a href="#studio"><span data-t="Design Yours">Design Yours</span></a>
+      <a href="#shop"><span data-t="Shop">Shop</span></a>
+      <a href="#paths"><span data-t="Wholesale">Wholesale</span></a>
+    </nav>
+    <div class="nav-r">
+      <a href="#stores" class="hide-m">Stores</a>
+      <button class="bag-btn" id="bagBtn">Bag <b id="bagCount">0</b></button>
+      <button class="menu-btn" id="menuBtn">MENU</button>
+    </div>
+  </div>
+</header>
+<nav class="mnav"><a href="#making">The Making</a><a href="#reels">Reels</a><a href="#studio">Design Yours</a><a href="#shop">Shop</a><a href="#paths">Wholesale</a></nav>
+
+<!-- ============ HERO: 3D silk, sarees change on scroll ============ -->
+<section class="hero" id="top" data-dark>
+  <div class="hero-pin" id="heroPin">
+    <div class="h-bgword" aria-hidden="true">from the loom</div>
+    <canvas id="gl"></canvas>
+    <div class="h-fallback" id="hFallback"></div>
+    <div class="h-ui">
+      <div class="h-top"><span class="eyebrow">Collection 2026 · Woven in Surat</span><h2>Scroll to unroll each saree, straight off our looms.</h2></div>
+      <div class="h-left">
+        <div class="h-count"><b id="hIdx">01</b>/ 05</div>
+        <h1 class="h-name" id="hName"></h1>
+        <div class="h-meta" id="hMeta"><span class="fab" id="hFab"></span><span class="pr" id="hPrice"></span></div>
+        <div class="h-ctas">
+          <button class="btn btn-gold" id="hAdd" data-add="1">Add to bag <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg></button>
+          <button class="btn btn-ghost" id="hWatch" data-reel="0" data-cursor="play">▶&nbsp; See it being woven</button>
+        </div>
+      </div>
+      <div class="h-list" id="hList"></div>
+      <div class="h-hint" id="hHint"><i></i>Scroll</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Manifesto ============ -->
+<section class="manifesto">
+  <div class="wrap">
+    <span class="eyebrow">Since 1998</span>
+    <p class="lit" id="lit">For 25 years our sarees reached you only through the shops you trust. We chose every [img:1727027282611-ced15b0855d0] thread, ran every [img:1707978932202-751b08324daf] loom and checked every metre by hand. <em>Now, for the first time, they come straight to you</em> — at the price we sell to shops.</p>
+    <div class="odos">
+      <div><div class="odo" data-n="25"></div><small>Years of weaving</small></div>
+      <div><div class="odo" data-n="120"></div><small>Looms running daily</small></div>
+      <div><div class="odo" data-n="800"></div><small>Partner shops, 14 states</small></div>
+      <div><div class="odo" data-n="3000"></div><small>Sarees woven every day</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ The Making: 3D flipping deck ============ -->
+<section class="making" id="making" data-dark>
+  <div class="mk-pin">
+    <div class="mk-txt">
+      <span class="eyebrow">How a saree is made</span>
+      <div class="mk-big"><div id="mkBig"><span>01</span><span>02</span><span>03</span><span>04</span></div></div>
+      <div class="mk-step" id="mkStep">
+        <article class="on"><h3>Choosing the threads</h3><p>Every saree starts on a table of spools. Our masters pair body, motif and zari colours, then test them in daylight and wedding lights.</p><div class="chips"><span>200+ shades</span><span>Colour-fast</span><span>Real zari</span></div><button class="play-link" data-reel="0" data-cursor="play"><i><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></i>Watch the reel</button></article>
+        <article><h3>Set on the loom</h3><p>Thousands of warp threads go onto the machine. Pick by pick the shuttle carries colour across, and the buta, border and pallu appear line by line.</p><div class="chips"><span>120+ looms</span><span>Jacquard</span><span>8–14 hrs each</span></div><button class="play-link" data-reel="1" data-cursor="play"><i><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></i>Watch the reel</button></article>
+        <article><h3>The fabric reveal</h3><p>Six and a half metres come off the loom. Each length is checked by hand for missed picks, loose zari and colour shifts before finishing.</p><div class="chips"><span>Hand inspected</span><span>Washed & finished</span></div><button class="play-link" data-reel="2" data-cursor="play"><i><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></i>Watch the reel</button></article>
+        <article><h3>The final drape</h3><p>Before a design goes live we drape it, so you see exactly how the pallu falls. Then it ships to you, or to a shop near you.</p><div class="chips"><span>Ships in 48 hrs</span><span>7-day returns</span></div><button class="play-link" data-reel="3" data-cursor="play"><i><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></i>Watch the reel</button></article>
+      </div>
+      <div class="mk-dots" id="mkDots"><i><b></b></i><i><b></b></i><i><b></b></i><i><b></b></i></div>
+    </div>
+    <div class="deck" id="deck"></div>
+  </div>
+</section>
+
+<!-- ============ Reels: 3D ring ============ -->
+<section class="reels" id="reels">
+  <div class="wrap reels-head">
+    <div><span class="eyebrow" style="color:var(--gold)">Loom to you · Reels</span><h2 class="display" style="margin-top:14px">Watch it <em>being woven.</em></h2></div>
+    <p>Real videos from our mill floor: thread colours, the loom at work, the fabric coming off and the final drape. Drag the ring to spin it.</p>
+  </div>
+  <div class="stage" id="stage" data-cursor="drag"><div class="ring3d" id="ring3d"></div><div class="ring-floor"></div></div>
+  <p class="ring-hint">Drag to spin · Tap the front reel to play</p>
+</section>
+
+<!-- ============ Weave studio ============ -->
+<section class="studio" id="studio" data-dark>
+  <div class="wrap studio-grid">
+    <div class="loom-box up"><span class="loom-tag"><i></i>Live loom preview</span><canvas id="weave"></canvas><canvas id="shuttle"></canvas></div>
+    <div class="pick up">
+      <span class="eyebrow" style="color:var(--gold-2)">Made to your colours</span>
+      <h2 class="display" style="margin-top:14px">Pick the threads.<br><em>Watch it weave.</em></h2>
+      <p class="lead">Because we own the looms, you can choose your own colours — even for a single saree. We'll send you a reel of it on the loom before it ships.</p>
+      <h4>Body</h4><div class="sws" data-k="body"></div>
+      <h4>Zari / motif</h4><div class="sws" data-k="zari"></div>
+      <h4>Border</h4><div class="sws" data-k="border"></div>
+      <h4>Weave pattern</h4>
+      <div class="motifs" id="motifs"><button class="on" data-m="buta">Buta</button><button data-m="checks">Checks</button><button data-m="stripes">Diagonal</button><button data-m="plain">Plain</button></div>
+      <div class="recipe"><a class="btn btn-gold" id="orderCustom" href="#" target="_blank" rel="noopener">Order this on WhatsApp</a><small>Ready in 7–10 days</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Collection ============ -->
+<section class="shop" id="shop">
+  <div class="wrap">
+    <div class="shop-head">
+      <div><span class="eyebrow" style="color:var(--gold)">Fresh off the loom</span><h2 class="display" style="margin-top:14px">Shop at <em>mill price.</em></h2></div>
+      <div class="filters" id="filters"><button class="on" data-f="all">All</button><button data-f="silk">Silk</button><button data-f="banarasi">Banarasi</button><button data-f="cotton">Cotton</button><button data-f="georgette">Georgette</button></div>
+    </div>
+    <div class="grid" id="grid"></div>
+  </div>
+</section>
+
+<!-- ============ Two paths: flip cards ============ -->
+<section class="paths" id="paths">
+  <div class="wrap">
+    <div class="paths-head"><span class="eyebrow" style="color:var(--gold)">One mill, two ways to buy</span><h2 class="display">Who are you <em>buying for?</em></h2></div>
+    <div class="flips">
+      <div class="flip" id="flipA">
+        <div class="flip-in">
+          <div class="face front" data-cursor="flip"><img src="https://images.unsplash.com/photo-1727430228383-aa1fb59db8bf?auto=format&fit=crop&w=1200&q=80" alt="Woman wearing a saree" loading="lazy" style="position:absolute;inset:0"><div class="fc"><span class="eyebrow">For you</span><h3>I'm buying<br>for myself.</h3><button class="btn btn-gold" data-flip="flipA">See what you get</button></div></div>
+          <div class="face back"><button class="back-btn" data-flip="flipA" aria-label="Back">↺</button><span class="eyebrow" style="color:var(--gold)">For customers</span><h3>One saree.<br>Mill price.</h3><p>The same sarees found in shops across India, straight from the people who weave them.</p><ul class="ticks"><li>Up to 40% below retail</li><li>A reel for every design</li><li>Custom colours from one piece</li><li>COD, UPI &amp; 7-day returns</li><li>Ships in 48 hours</li></ul><a href="#shop" class="btn btn-dark" style="align-self:flex-start">Start shopping</a></div>
+        </div>
+      </div>
+      <div class="flip" id="flipB">
+        <div class="flip-in">
+          <div class="face front" data-cursor="flip"><img src="https://images.unsplash.com/photo-1692972622641-fe6bf95aaca7?auto=format&fit=crop&w=1200&q=80" alt="Rows of thread spools" loading="lazy" style="position:absolute;inset:0"><div class="fc"><span class="eyebrow">For your shop</span><h3>I own a<br>saree shop.</h3><button class="btn btn-gold" data-flip="flipB">Become a partner</button></div></div>
+          <div class="face back dark"><button class="back-btn" data-flip="flipB" aria-label="Back">↺</button><span class="eyebrow" style="color:var(--gold-2)">For retailers</span><h3>Wholesale, from the source.</h3><p>Our online store sends walk-in customers to you. Partners get bulk rates, area protection and ready-made reels to sell with.</p>
+            <form class="tform" id="tradeForm"><input required placeholder="Your name"><input required placeholder="Shop name"><input required placeholder="City"><input required type="tel" placeholder="WhatsApp number"><select required class="full"><option value="">Monthly quantity</option><option>50–200 pcs</option><option>200–500 pcs</option><option>500+ pcs</option></select><button class="btn btn-gold full" style="justify-content:center">Get wholesale catalogue</button></form>
+            <p class="tok" id="tOk">Thank you. Our team will WhatsApp you the catalogue within 24 hours.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Testimonials: swipe deck ============ -->
+<section class="voices">
+  <div class="wrap voices-grid">
+    <div class="up"><span class="eyebrow">Loved by both</span><h2 class="display">Customers <em>and</em><br>shop owners.</h2><p style="color:var(--ink-2);max-width:380px">Swipe through what people say after buying straight from the mill.</p>
+      <div class="v-ctrl"><button class="circ" id="tPrev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg></button><button class="circ" id="tNext" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button></div></div>
+    <div class="tdeck" id="tdeck" data-cursor="drag"></div>
+  </div>
+</section>
+
+<!-- ============ Stores ============ -->
+<section class="stores" id="stores">
+  <div class="wrap">
+    <div class="stores-box up">
+      <div><span class="eyebrow">Store locator</span><h2 class="display">Feel the fabric <em>in person.</em></h2><p style="color:var(--ink-2);margin-top:14px">See the colour in daylight and get the fall-pico done at any of our 800+ partner shops.</p><div class="st-tabs" id="stTabs"></div></div>
+      <div class="st-list" id="stList"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Footer ============ -->
+<footer data-dark>
+  <div class="wrap">
+    <div class="f-top">
+      <div><h3>New designs reach our <em>subscribers first.</em></h3><form class="news" id="news"><input type="email" required placeholder="Your email address"><button>Subscribe →</button></form></div>
+      <div><h5>Shop</h5><a href="#shop">Pure silk</a><a href="#shop">Banarasi</a><a href="#shop">Cotton</a><a href="#studio">Custom colours</a></div>
+      <div><h5>Business</h5><a href="#paths">Become a partner</a><a href="#stores">Store locator</a><a href="#making">Our mill</a></div>
+      <div><h5>Contact</h5><a href="https://wa.me/919876543210">WhatsApp</a><a href="#">Instagram</a><a href="#">YouTube</a><a href="#">GIDC Sachin, Surat</a></div>
+    </div>
+    <div class="giant" id="giant" aria-label="Queen Silk"></div>
+    <div class="f-bot"><span>© 2026 Queen Silk</span><span>Privacy · Terms · Shipping · Returns</span></div>
+  </div>
+</footer>
+
+<!-- Story viewer -->
+<div class="viewer" id="viewer">
+  <div class="vbox">
+    <div class="vmedia" id="vMedia"></div>
+    <div class="vbars" id="vBars"></div>
+    <div class="vhead"><span class="av">Q</span>queensilk <span style="opacity:.6;font-weight:500" id="vViews"></span><button class="vclose" id="vClose" aria-label="Close">✕</button></div>
+    <div class="tap l" id="tapL"></div><div class="tap r" id="tapR"></div>
+    <div class="vfoot"><small id="vTag"></small><h4 id="vTitle"></h4><a href="#shop" class="btn btn-gold" id="vShop">Shop this saree</a></div>
+  </div>
+</div>
+
+<!-- Bag -->
+<div class="shade" id="shade"></div>
+<aside class="drawer" id="drawer">
+  <div class="dh"><h3>Your bag</h3><button id="dClose" aria-label="Close">✕</button></div>
+  <div class="di" id="dItems"></div>
+  <div class="df"><div class="row"><span>Subtotal</span><b id="dTotal">₹0</b></div><button class="btn btn-dark">Checkout securely</button></div>
+</aside>
+<div class="toast" id="toast"><span id="toastTxt"></span><button id="toastBtn">View bag</button></div>
+<a class="wa" href="https://wa.me/919876543210" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.4-.5c.2-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.1 3.2 5.1 4.5.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4zM12 21.8c-1.8 0-3.5-.5-5-1.4l-.4-.2-3.7 1 1-3.6-.2-.4A9.8 9.8 0 1 1 12 21.8zM20.5 3.5A11.8 11.8 0 0 0 1.9 17.8L.2 24l6.3-1.7A11.8 11.8 0 0 0 24 12c0-3.2-1.2-6.2-3.5-8.5z"/></svg></a>
+
+<script>
+/* ===================== CONTENT — replace with the client's own photos & reels ===================== */
+const IMG = (id, w = 900, h) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}${h ? `&h=${h}` : ''}&q=80`;
+
+// Hero sarees (scroll changes these). bg = page tint behind the 3D silk.
+const sarees = [
+  {name:'Kesariya Banarasi', fab:'Banarasi zari silk', price:3499, mrp:5499, img:'1610030469983-98e550d6193c', bg:'#2a0f13', pid:1, reel:6},
+  {name:'Haritha Silk',      fab:'Pure silk · gold zari', price:2499, mrp:3999, img:'1679006831648-7c9ea12e5807', bg:'#0f211b', pid:2, reel:3},
+  {name:'Jamuni Zari',       fab:'Purple & gold Banarasi', price:2899, mrp:4499, img:'1641699862936-be9f49b1c38d', bg:'#1d1024', pid:3, reel:6},
+  {name:'Gulabi Cotton Silk',fab:'Cotton silk · festive pink', price:1199, mrp:1799, img:'1617627143750-d86bc21e42bb', bg:'#2b1610', pid:8, reel:5},
+  {name:'Neel Georgette',    fab:'Light georgette', price:1299, mrp:1999, img:'1610189012906-4c0aa9b9781e', bg:'#0e1628', pid:4, reel:4}
+];
+
+// Reels: add an mp4 URL in `video` to play the real reel.
+const reels = [
+  {cat:'Thread colours', title:'Picking threads for a bridal maroon', img:'1727027282611-ced15b0855d0', views:'48K', video:''},
+  {cat:'On the loom',    title:'Watch the buta appear, pick by pick', img:'1638310533874-6c124c012e1d', views:'1.2L', video:''},
+  {cat:'Fabric output',  title:'Six metres, straight off the loom',   img:'1518893063132-36e46dbe2428', views:'72K', video:''},
+  {cat:'Final look',     title:'Bottle-green silk, fully draped',     img:'1679006831648-7c9ea12e5807', views:'95K', video:''},
+  {cat:'On the loom',    title:'A zari border, up close',             img:'1643766883805-829d9ad95c42', views:'60K', video:''},
+  {cat:'Thread colours', title:'Gold or silver zari for you?',        img:'1707914703943-c011999d6f29', views:'31K', video:''},
+  {cat:'Final look',     title:'The purple Banarasi, three ways',     img:'1641699862936-be9f49b1c38d', views:'84K', video:''},
+  {cat:'Fabric output',  title:'Hand-checking every metre',           img:'1676696706907-0e04665b80bd', views:'27K', video:''}
+];
+
+const products = [
+  {id:1, type:'banarasi',  name:'Kesariya Banarasi',  sub:'Banarasi zari silk',  price:3499, mrp:5499, img:'1610030469983-98e550d6193c', tag:'Bestseller', reel:6},
+  {id:2, type:'silk',      name:'Haritha Silk',       sub:'Pure silk · gold zari', price:2499, mrp:3999, img:'1679006831648-7c9ea12e5807', tag:'New', reel:3},
+  {id:3, type:'banarasi',  name:'Jamuni Zari',        sub:'Purple & gold',        price:2899, mrp:4499, img:'1641699862936-be9f49b1c38d', reel:6},
+  {id:4, type:'georgette', name:'Neel Georgette',     sub:'Light georgette',      price:1299, mrp:1999, img:'1610189012906-4c0aa9b9781e', reel:4},
+  {id:5, type:'silk',      name:'Sindoor Silk',       sub:'Festive pure silk',    price:2199, mrp:3299, img:'1618901185975-d59f7091bcfe', tag:'Festive', reel:0},
+  {id:6, type:'cotton',    name:'Chandni Cotton',     sub:'Everyday cotton',      price:899,  mrp:1399, img:'1678705730064-a7ecbab4b3fb', reel:2},
+  {id:7, type:'georgette', name:'Aasmani Georgette',  sub:'Sky-blue georgette',   price:1399, mrp:2199, img:'1615886753866-79396abc446e', reel:1},
+  {id:8, type:'cotton',    name:'Gulabi Cotton Silk', sub:'Cotton silk · pink',   price:1199, mrp:1799, img:'1617627143750-d86bc21e42bb', tag:'New', reel:5}
+];
+
+const steps = ['1660733101195-f688256c8854','1638310533874-6c124c012e1d','1518893063132-36e46dbe2428','1679006831648-7c9ea12e5807'];
+const stepCaps = ['Threads','The loom','Fabric output','Final drape'];
+
+const voices = [
+  ['I watched my saree on the loom before it shipped. It arrived exactly as I saw it.','Priya S.','Pune','Customer','1727430228383-aa1fb59db8bf'],
+  ['Their reels bring customers into my shop asking for the exact design they saw.','Ramesh T.','Indore','Retailer','1692972622641-fe6bf95aaca7'],
+  ['I picked my own thread colours for my sister\'s wedding. They sent a video from the mill!','Hetal M.','Rajkot','Customer','1617627143750-d86bc21e42bb'],
+  ['Same-week dispatch and area protection. The best supplier I\'ve worked with.','Suresh P.','Jaipur','Retailer','1707914703943-c011999d6f29'],
+  ['Same silk as my local showroom, at almost half the price.','Anjali K.','Mumbai','Customer','1679006831648-7c9ea12e5807']
+];
+
+const stores = {
+  'Gujarat':[['Shree Saree Sadan','Ring Road, Surat','+91 98250 11111'],['Laxmi Vastra Bhandar','Manek Chowk, Ahmedabad','+91 98250 22222'],['Rangoli Sarees','Sadar Bazaar, Rajkot','+91 98250 33333']],
+  'Maharashtra':[['Pune Silk House','Laxmi Road, Pune','+91 98220 44444'],['Mangal Saree Centre','Dadar West, Mumbai','+91 98220 55555']],
+  'Rajasthan':[['Jaipur Kala Sarees','Johari Bazaar, Jaipur','+91 94140 66666'],['Marwar Vastra','Sardar Market, Jodhpur','+91 94140 77777']],
+  'Madhya Pradesh':[['Tirupati Sarees','Rajwada, Indore','+91 94250 88888'],['Bhopal Silk Point','New Market, Bhopal','+91 94250 99999']]
+};
+const WA = '919876543210';
+
+/* ===================== Helpers ===================== */
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const clamp = (v, a, b) => Math.min(Math.max(v, a), b), lerp = (a, b, t) => a + (b - a) * t;
+const inr = n => '₹' + n.toLocaleString('en-IN');
+const isMobile = () => innerWidth <= 900;
+const fine = matchMedia('(pointer:fine)').matches;
+const PLAY = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+const hex = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+const mixHex = (a, b, t) => { const A = hex(a), B = hex(b); return `rgb(${A.map((v, i) => Math.round(lerp(v, B[i], t))).join(',')})`; };
+const mouse = {x: innerWidth / 2, y: innerHeight / 2};
+addEventListener('pointermove', e => { mouse.x = e.clientX; mouse.y = e.clientY; }, {passive: true});
+
+/* ===================== Loader ===================== */
+let ldTarget = 0, ldShown = 0, ldDone = false;
+const ldStart = performance.now();
+function setLoad(p){ ldTarget = Math.max(ldTarget, p); }
+function finishLoad(){
+  if (ldDone) return; ldDone = true; setLoad(1);
+  const wait = Math.max(0, 1300 - (performance.now() - ldStart));
+  setTimeout(() => { $('#loader').classList.add('done'); document.body.classList.remove('locked'); setTimeout(() => $('#loader').remove(), 1500); }, wait + 350);
+}
+(function ldTick(){
+  if (!$('#ldNum')) return;
+  ldShown = lerp(ldShown, ldTarget, .12);
+  $('#ldNum').textContent = Math.round(ldShown * 100);
+  $('#ldBar').style.width = (ldShown * 100) + '%';
+  if (!ldDone || ldShown < .995) requestAnimationFrame(ldTick);
+})();
+setTimeout(() => setLoad(.35), 200);
+setTimeout(() => finishLoad(), 7000);
+
+/* ===================== Cursor: thread trail + needle ring ===================== */
+if (fine) {
+  document.documentElement.classList.add('has-cursor');
+  const tc = $('#trail'), tx = tc.getContext('2d'), ring = $('#ring');
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  const size = () => { tc.width = innerWidth * dpr; tc.height = innerHeight * dpr; tx.setTransform(dpr, 0, 0, dpr, 0, 0); };
+  size(); addEventListener('resize', size);
+  const pts = []; let rx = mouse.x, ry = mouse.y;
+  (function cursorLoop(){
+    rx = lerp(rx, mouse.x, .2); ry = lerp(ry, mouse.y, .2);
+    ring.style.transform = `translate(${rx}px,${ry}px)` + (ring.classList.contains('press') ? ' scale(.8)' : '');
+    pts.unshift({x: mouse.x, y: mouse.y}); if (pts.length > 26) pts.pop();
+    tx.clearRect(0, 0, innerWidth, innerHeight);
+    tx.lineCap = 'round';
+    for (let i = 1; i < pts.length; i++) {
+      const t = 1 - i / pts.length;
+      tx.beginPath(); tx.moveTo(pts[i - 1].x, pts[i - 1].y); tx.lineTo(pts[i].x, pts[i].y);
+      tx.strokeStyle = `rgba(201,162,74,${t * .9})`; tx.lineWidth = t * 3.2; tx.stroke();
+    }
+    requestAnimationFrame(cursorLoop);
+  })();
+  const labels = {play:'▶ Play', view:'View', drag:'⟷ Drag', flip:'↻ Flip'};
+  document.addEventListener('mouseover', e => {
+    const c = e.target.closest('[data-cursor]');
+    if (c) { ring.dataset.state = c.dataset.cursor; $('#ringTxt').textContent = labels[c.dataset.cursor] || ''; }
+    else if (e.target.closest('a,button,select,input,.sw')) { ring.dataset.state = 'link'; $('#ringTxt').textContent = ''; }
+    else { ring.dataset.state = ''; $('#ringTxt').textContent = ''; }
+  });
+  addEventListener('mousedown', () => ring.classList.add('press'));
+  addEventListener('mouseup', () => ring.classList.remove('press'));
+} else { $('#trail').remove(); $('#ring').remove(); }
+
+/* ===================== Menu ===================== */
+$('#menuBtn').onclick = () => { document.body.classList.toggle('menu-open'); $('#menuBtn').textContent = document.body.classList.contains('menu-open') ? 'CLOSE' : 'MENU'; };
+$$('.mnav a').forEach(a => a.onclick = () => { document.body.classList.remove('menu-open'); $('#menuBtn').textContent = 'MENU'; });
+$$('a[href^="#"]').forEach(a => a.addEventListener('click', e => {
+  const id = a.getAttribute('href'); if (id.length < 2) return; const t = $(id); if (!t) return;
+  e.preventDefault(); scrollTo({top: t.getBoundingClientRect().top + scrollY, behavior: 'smooth'});
+}));
+
+/* ===================== HERO: 3D silk plane ===================== */
+const N = sarees.length, hero = $('#top'), heroPin = $('#heroPin');
+let shown = -1, glOK = false, three = null;
+$('#hList').innerHTML = sarees.map((s, i) => `<button data-go="${i}"><span>0${i + 1}</span>${s.name}<i><b></b></i></button>`).join('');
+$('#hFallback').innerHTML = sarees.map((s, i) => `<img src="${IMG(s.img, 900, 1200)}" alt="${s.name}" class="${i ? '' : 'on'}">`).join('');
+$$('#hList button').forEach(b => b.onclick = () => {
+  const i = +b.dataset.go, top = hero.offsetTop + (i / (N - 1)) * (hero.offsetHeight - innerHeight);
+  scrollTo({top, behavior: 'smooth'});
+});
+function heroP(){ const r = hero.getBoundingClientRect(); return clamp(-r.top / (hero.offsetHeight - innerHeight), 0, 1) * (N - 1); }
+function showSaree(i){
+  if (i === shown) return; shown = i; const s = sarees[i];
+  $('#hIdx').textContent = '0' + (i + 1);
+  const words = s.name.split(' ');
+  let k = 0;
+  $('#hName').innerHTML = words.map((w, wi) => `<span class="wd ${wi === words.length - 1 ? 'it' : ''}">` + [...w].map(c => `<span class="c" style="animation-delay:${(k++) * 26}ms">${c}</span>`).join('') + '</span>').join(' ');
+  const m = $('#hMeta'); m.classList.remove('swap'); void m.offsetWidth; m.classList.add('swap');
+  $('#hFab').textContent = s.fab; $('#hPrice').innerHTML = `${inr(s.price)}<s>${inr(s.mrp)}</s>`;
+  $('#hAdd').dataset.add = s.pid; $('#hWatch').dataset.reel = s.reel;
+  $$('#hList button').forEach((b, j) => b.classList.toggle('on', j === i));
+  $$('#hFallback img').forEach((im, j) => im.classList.toggle('on', j === i));
+}
+showSaree(0);
+
+const VERT = `
+uniform float uTime; uniform float uVel; uniform float uMix; uniform vec2 uMouse; uniform float uHover;
+varying vec2 vUv; varying float vShade;
+void main(){
+  vUv = uv; vec3 p = position;
+  float w = sin(uv.x*4.0 + uTime*1.1)*0.045 + sin(uv.y*5.0 + uTime*.8 + uv.x*2.0)*0.035;
+  w += sin(uv.y*9.0 - uTime*3.0)*0.05*uVel;
+  float bend = sin(uv.x*3.14159) * sin(uMix*3.14159) * 0.22;
+  float d = distance(uv, uMouse); w += exp(-d*d*22.0)*0.12*uHover;
+  p.z += w + bend;
+  vShade = w*2.2 + bend*0.6;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
+}`;
+const FRAG = `
+precision highp float;
+uniform sampler2D uTex1; uniform sampler2D uTex2; uniform float uMix; uniform float uTime;
+varying vec2 vUv; varying float vShade;
+float h(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453); }
+float n2(vec2 p){ vec2 i=floor(p), f=fract(p); f=f*f*(3.0-2.0*f);
+  return mix(mix(h(i),h(i+vec2(1,0)),f.x), mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x), f.y); }
+void main(){
+  float n = n2(vUv*4.0 + uTime*0.04)*0.65 + n2(vUv*13.0)*0.35;
+  float t = smoothstep(n - 0.08, n + 0.08, uMix*1.2 - 0.1);
+  vec4 a = texture2D(uTex1, vUv + vec2(0.0, uMix*0.04));
+  vec4 b = texture2D(uTex2, vUv - vec2(0.0, (1.0-uMix)*0.04));
+  vec3 c = mix(a.rgb, b.rgb, t);
+  float edge = 1.0 - smoothstep(0.0, 0.18, abs(t - 0.5)*2.0);
+  c += edge * vec3(0.95, 0.75, 0.35) * 0.9 * step(0.002, uMix) * step(uMix, 0.998);
+  c *= 0.9 + vShade;
+  float r = 0.035; vec2 q = (vUv - 0.5) * vec2(0.75, 1.0);
+  vec2 dd = abs(q) - (vec2(0.375, 0.5) - r);
+  float s = length(max(dd, 0.0)) - r;
+  float alpha = 1.0 - smoothstep(-0.002, 0.002, s);
+  gl_FragColor = vec4(c, alpha);
+}`;
+
+function noGL(){ glOK = false; document.body.classList.add('no-gl'); finishLoad(); }
+function initGL(){
+  if (!window.THREE) return noGL();
+  try {
+    const canvas = $('#gl');
+    const renderer = new THREE.WebGLRenderer({canvas, antialias: true, alpha: true});
+    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100); camera.position.z = 10;
+    const manager = new THREE.LoadingManager();
+    let failed = false;
+    manager.onProgress = (u, l, t) => setLoad(.2 + (l / t) * .8);
+    manager.onError = () => { failed = true; };
+    manager.onLoad = () => { if (failed) { noGL(); canvas.style.display = 'none'; } else finishLoad(); };
+    const loader = new THREE.TextureLoader(manager); loader.setCrossOrigin('anonymous');
+    const tex = sarees.map(s => { const t = loader.load(IMG(s.img, 1200, 1600)); t.minFilter = THREE.LinearFilter; t.generateMipmaps = false; return t; });
+    const uniforms = {
+      uTex1:{value:tex[0]}, uTex2:{value:tex[1]}, uMix:{value:0}, uTime:{value:0}, uVel:{value:0},
+      uMouse:{value:new THREE.Vector2(.5, .5)}, uHover:{value:0}
+    };
+    const mat = new THREE.ShaderMaterial({uniforms, vertexShader: VERT, fragmentShader: FRAG, transparent: true});
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1, 90, 90), mat);
+    scene.add(mesh);
+    let visH = 1, visW = 1, pw = 1, ph = 1, intro = 0;
+    function resize(){
+      const w = innerWidth, h = innerHeight;
+      renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+      visH = 2 * Math.tan(THREE.MathUtils.degToRad(15)) * camera.position.z; visW = visH * camera.aspect;
+      ph = visH * (isMobile() ? .5 : .78); pw = ph * .75;
+      if (isMobile() && pw > visW * .86) { pw = visW * .86; ph = pw / .75; }
+      mesh.position.x = isMobile() ? 0 : visW * .1;
+      mesh.position.y = isMobile() ? visH * .17 : 0;
+    }
+    resize(); addEventListener('resize', resize);
+    three = {renderer, scene, camera, mesh, uniforms, tex,
+      frame(dt, p, vel){
+        intro = lerp(intro, ldDone ? 1 : 0, .05);
+        const s = .7 + .3 * intro;
+        mesh.scale.set(pw * s, ph * s, 1);
+        const i0 = Math.min(Math.floor(p), N - 1), i1 = Math.min(i0 + 1, N - 1);
+        uniforms.uTex1.value = tex[i0]; uniforms.uTex2.value = tex[i1];
+        uniforms.uMix.value = i0 === i1 ? 0 : p - i0;
+        uniforms.uTime.value += dt;
+        uniforms.uVel.value = lerp(uniforms.uVel.value, clamp(vel / 40, 0, 1), .08);
+        // mouse → plane uv
+        const cx = innerWidth / 2 + mesh.position.x / visW * innerWidth, cy = innerHeight / 2 - mesh.position.y / visH * innerHeight;
+        const wpx = pw / visW * innerWidth, hpx = ph / visH * innerHeight;
+        const u = (mouse.x - (cx - wpx / 2)) / wpx, v = 1 - (mouse.y - (cy - hpx / 2)) / hpx;
+        const inside = u > 0 && u < 1 && v > 0 && v < 1;
+        uniforms.uMouse.value.set(lerp(uniforms.uMouse.value.x, u, .1), lerp(uniforms.uMouse.value.y, v, .1));
+        uniforms.uHover.value = lerp(uniforms.uHover.value, inside ? 1 : 0, .06);
+        mesh.rotation.y = lerp(mesh.rotation.y, (mouse.x / innerWidth - .5) * .45 + (p % 1) * .25 * Math.sin(p * Math.PI), .06);
+        mesh.rotation.x = lerp(mesh.rotation.x, (mouse.y / innerHeight - .5) * .25, .06);
+        mesh.rotation.z = lerp(mesh.rotation.z, -.03 + Math.sin(uniforms.uTime.value * .4) * .015, .05);
+        renderer.render(scene, camera);
+      }
+    };
+    glOK = true;
+  } catch (err) { noGL(); }
+}
+initGL();
+
+/* ===================== Manifesto (scroll-lit words) ===================== */
+(function(){
+  const el = $('#lit'); const html = el.innerHTML;
+  const parts = html.split(/(\[img:[^\]]+\]|<em>|<\/em>|\s+)/).filter(Boolean);
+  let out = '', inEm = false;
+  parts.forEach(p => {
+    if (p === '<em>') { inEm = true; out += '<em>'; return; }
+    if (p === '</em>') { inEm = false; out += '</em>'; return; }
+    if (/^\s+$/.test(p)) { out += ' '; return; }
+    const m = p.match(/^\[img:(.+)\]$/);
+    out += m ? `<span class="pic w"><img src="${IMG(m[1], 300, 150)}" alt=""></span>` : `<span class="w">${p}</span>`;
+  });
+  el.innerHTML = out;
+})();
+const litWords = $$('#lit .w');
+
+/* Odometer counters */
+$$('.odo').forEach(o => {
+  const s = String(o.dataset.n);
+  o.innerHTML = [...s].map(() => `<div class="col">${Array.from({length: 10}, (_, d) => `<span>${d}</span>`).join('')}</div>`).join('') + '<div class="col"><span>+</span></div>';
+});
+const odoIO = new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting) return;
+  const o = e.target, s = String(o.dataset.n);
+  [...o.querySelectorAll('.col')].slice(0, s.length).forEach((c, i) => { c.style.transitionDelay = (i * 120) + 'ms'; c.style.transform = `translateY(-${+s[i]}em)`; });
+  odoIO.unobserve(o);
+}), {threshold: .6});
+$$('.odo').forEach(o => odoIO.observe(o));
+
+/* ===================== The Making: 3D deck ===================== */
+const making = $('#making');
+$('#deck').innerHTML = steps.map((id, i) => `<div class="dcard" style="z-index:${10 - i}"><img src="${IMG(id, 900, 1200)}" alt="${stepCaps[i]}" loading="lazy"><span class="cap">0${i + 1} · ${stepCaps[i]}</span></div>`).join('');
+const dcards = $$('.dcard'), mkArts = $$('#mkStep article'), mkDots = $$('#mkDots b');
+let mkIdx = -1;
+function makingFrame(){
+  const r = making.getBoundingClientRect();
+  if (r.bottom < 0 || r.top > innerHeight) return;
+  const p = clamp(-r.top / (making.offsetHeight - innerHeight), 0, 1) * 4;
+  dcards.forEach((c, i) => {
+    const local = p - i;
+    if (local < 0) {
+      const d = Math.min(-local, 3);
+      c.style.transform = `translate3d(0,${-d * 26}px,${-d * 80}px) rotateX(${d * 4}deg)`;
+      c.style.opacity = 1; c.style.filter = `brightness(${1 - d * .22})`;
+    } else {
+      const f = i === 3 ? 0 : clamp((local - .5) / .5, 0, 1);
+      const e = f * f * (3 - 2 * f);
+      c.style.transform = `translate3d(0,${-e * 70}%,${e * 160}px) rotateX(${-e * 70}deg) rotateZ(${e * (i % 2 ? 8 : -8)}deg)`;
+      c.style.opacity = 1 - e; c.style.filter = 'none';
+    }
+  });
+  const idx = clamp(Math.floor(p), 0, 3);
+  if (idx !== mkIdx) {
+    mkIdx = idx;
+    mkArts.forEach((a, i) => a.classList.toggle('on', i === idx));
+    $('#mkBig').style.transform = `translateY(-${idx * .8}em)`;
+  }
+  mkDots.forEach((d, i) => d.style.transform = `scaleX(${clamp(p - i, 0, 1)})`);
+}
+
+/* ===================== Reels: 3D ring ===================== */
+const ring3d = $('#ring3d'), stage = $('#stage'), reelsSec = $('#reels');
+const RN = reels.length, STEP = 360 / RN;
+ring3d.innerHTML = reels.map((r, i) => `
+  <div class="rcard" data-i="${i}">
+    <img src="${IMG(r.img, 500, 888)}" alt="${r.title}" loading="lazy">
+    <div class="rt"><span>@queensilk</span><span>▶ ${r.views}</span></div>
+    <span class="pp">${PLAY}</span>
+    <div class="rb"><small>${r.cat}</small><h4>${r.title}</h4></div>
+  </div>`).join('');
+const rcards = $$('.rcard');
+let ringRot = 0, ringBase = 0, auto = 0, dragging = false, dStartX = 0, dBase = 0, dMoved = 0, frontIdx = 0;
+const radius = () => isMobile() ? 300 : 400;
+function ringFrame(){
+  const r = reelsSec.getBoundingClientRect();
+  if (r.bottom < 0 || r.top > innerHeight) return;
+  if (!dragging) auto -= .06;
+  const target = -(r.top / innerHeight) * 50 + ringBase + auto;
+  ringRot = lerp(ringRot, target, .08);
+  const R = radius();
+  ring3d.style.transform = `translateZ(${-R}px) rotateX(-6deg) rotateY(${ringRot}deg)`;
+  let best = 999;
+  rcards.forEach((c, i) => {
+    const ang = i * STEP;
+    c.style.transform = `rotateY(${ang}deg) translateZ(${R}px)`;
+    let a = ((ang + ringRot) % 360 + 540) % 360 - 180;
+    const cos = Math.cos(a * Math.PI / 180);
+    c.style.filter = `brightness(${.32 + .68 * Math.max(cos, 0)})`;
+    if (Math.abs(a) < Math.abs(best)) { best = a; frontIdx = i; }
+    c._a = a;
+  });
+  rcards.forEach((c, i) => c.classList.toggle('front', i === frontIdx));
+}
+stage.addEventListener('pointerdown', e => { dragging = true; dStartX = e.clientX; dBase = ringBase; dMoved = 0; });
+addEventListener('pointermove', e => { if (!dragging) return; const dx = e.clientX - dStartX; dMoved = Math.max(dMoved, Math.abs(dx)); ringBase = dBase + dx * .3; });
+addEventListener('pointerup', e => {
+  if (!dragging) return; dragging = false;
+  if (dMoved < 6) {
+    const c = e.target.closest('.rcard'); if (!c) return;
+    const i = +c.dataset.i;
+    if (i === frontIdx) openViewer(i, e.clientX, e.clientY);
+    else ringBase -= c._a;
+  }
+});
+
+/* ===================== Story viewer ===================== */
+let cur = 0, vt;
+$('#vBars').innerHTML = reels.map(() => '<i><b></b></i>').join('');
+function openViewer(i, x, y){
+  cur = i; const v = $('#viewer');
+  v.style.setProperty('--cx', (x ?? innerWidth / 2) + 'px'); v.style.setProperty('--cy', (y ?? innerHeight / 2) + 'px');
+  v.classList.add('open'); document.body.classList.add('locked'); showStory();
+}
+function closeViewer(){ $('#viewer').classList.remove('open'); document.body.classList.remove('locked'); clearTimeout(vt); setTimeout(() => { if (!$('#viewer').classList.contains('open')) $('#vMedia').innerHTML = ''; }, 900); }
+function showStory(){
+  clearTimeout(vt); const r = reels[cur];
+  $('#vMedia').innerHTML = r.video ? `<video src="${r.video}" autoplay playsinline muted></video>` : `<img src="${IMG(r.img, 900, 1600)}" alt="">`;
+  $('#vTag').textContent = r.cat; $('#vTitle').textContent = r.title; $('#vViews').textContent = '· ' + r.views + ' views';
+  const bars = $$('#vBars i'); bars.forEach((b, k) => b.className = k < cur ? 'done' : '');
+  void bars[cur].offsetWidth; bars[cur].className = 'run';
+  const v = $('#vMedia video');
+  if (v) { v.onloadedmetadata = () => bars[cur].style.setProperty('--d', v.duration + 's'); v.onended = nextStory; }
+  else { bars[cur].style.setProperty('--d', '6s'); vt = setTimeout(nextStory, 6000); }
+}
+function nextStory(){ cur < reels.length - 1 ? (cur++, showStory()) : closeViewer(); }
+function prevStory(){ cur = Math.max(0, cur - 1); showStory(); }
+$('#tapR').onclick = nextStory; $('#tapL').onclick = prevStory; $('#vClose').onclick = closeViewer; $('#vShop').onclick = closeViewer;
+$('#viewer').addEventListener('click', e => { if (e.target.id === 'viewer') closeViewer(); });
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-reel]'); if (!t || t.closest('#stage')) return;
+  e.preventDefault(); openViewer(+t.dataset.reel, e.clientX, e.clientY);
+});
+addEventListener('keydown', e => {
+  if ($('#viewer').classList.contains('open')) { if (e.key === 'Escape') closeViewer(); if (e.key === 'ArrowRight') nextStory(); if (e.key === 'ArrowLeft') prevStory(); }
+  else if (e.key === 'Escape') closeBag();
+});
+
+/* ===================== Weave studio (live loom canvas) ===================== */
+const palette = {
+  body:[['Maroon','#7a1f2b'],['Bottle green','#1f4d43'],['Royal blue','#26386b'],['Mustard','#c98a24'],['Rani pink','#b8336a'],['Ivory','#ece0c6']],
+  zari:[['Gold zari','#e3c06f'],['Silver zari','#d6d6d6'],['Copper','#c57a45'],['White','#fbf7ee']],
+  border:[['Deep wine','#3a0d14'],['Black','#141010'],['Navy','#101c36'],['Red','#9c1c1c']]
+};
+const pick = {body:0, zari:0, border:0, motif:'buta'};
+$$('.sws').forEach(g => {
+  const k = g.dataset.k;
+  g.innerHTML = palette[k].map((c, i) => `<button class="sw ${i ? '' : 'on'}" style="--c:${c[1]}" data-i="${i}" aria-label="${c[0]}" title="${c[0]}"></button>`).join('');
+  g.querySelectorAll('.sw').forEach(b => b.onclick = () => { g.querySelectorAll('.sw').forEach(x => x.classList.remove('on')); b.classList.add('on'); pick[k] = +b.dataset.i; restartWeave(); });
+});
+$$('#motifs button').forEach(b => b.onclick = () => { $$('#motifs button').forEach(x => x.classList.remove('on')); b.classList.add('on'); pick.motif = b.dataset.m; restartWeave(); });
+
+const wc = $('#weave'), wx = wc.getContext('2d'), sc = $('#shuttle'), sx = sc.getContext('2d');
+let W = 0, H = 0, CS = 7, cols = 0, rows = 0, row = 0, colPos = 0, weaving = false;
+function sizeWeave(){
+  const r = wc.getBoundingClientRect(), d = Math.min(devicePixelRatio || 1, 2);
+  W = r.width; H = r.height; [wc, sc].forEach(c => { c.width = W * d; c.height = H * d; c.getContext('2d').setTransform(d, 0, 0, d, 0, 0); });
+  CS = isMobile() ? 6 : 7; cols = Math.ceil(W / CS); rows = Math.ceil(H / CS);
+}
+const C = () => ({body: palette.body[pick.body][1], zari: palette.zari[pick.zari][1], border: palette.border[pick.border][1]});
+function motifAt(c, r){
+  const m = pick.motif;
+  if (m === 'buta') { const off = (Math.floor(r / 12) % 2) * 6; const x = (c + off) % 12 - 6, y = r % 12 - 6; return Math.abs(x) + Math.abs(y) < 3; }
+  if (m === 'checks') return c % 10 < 2 || r % 10 < 2;
+  if (m === 'stripes') return (c + r) % 14 < 3;
+  return false;
+}
+function colorAt(c, r, k){
+  const b = Math.max(6, Math.round(rows * .12));
+  if (r < b || r >= rows - b) { if (r === b - 2 || r === rows - b + 1 || r === 1 || r === rows - 2) return k.zari; return k.border; }
+  return motifAt(c, r) ? k.zari : k.body;
+}
+function drawCell(c, r, k){
+  const x = c * CS, y = r * CS, weft = colorAt(c, r, k);
+  const b = Math.max(6, Math.round(rows * .12));
+  const warp = (r < b || r >= rows - b) ? k.border : k.body;
+  const over = (c + r) % 2 === 0;
+  wx.fillStyle = over ? weft : warp; wx.fillRect(x, y, CS, CS);
+  wx.fillStyle = 'rgba(255,255,255,.14)'; over ? wx.fillRect(x, y + 1, CS, 1.3) : wx.fillRect(x + 1, y, 1.3, CS);
+  wx.fillStyle = 'rgba(0,0,0,.22)'; over ? wx.fillRect(x, y + CS - 1, CS, 1) : wx.fillRect(x + CS - 1, y, 1, CS);
+}
+function drawWarp(){
+  const k = C(); wx.fillStyle = '#1a0c0e'; wx.fillRect(0, 0, W, H);
+  for (let c = 0; c < cols; c++) { wx.fillStyle = k.body; wx.globalAlpha = .55; wx.fillRect(c * CS + CS / 2 - 1, 0, 2, H); }
+  wx.globalAlpha = 1;
+}
+function restartWeave(){
+  sizeWeave(); drawWarp(); row = 0; colPos = 0; weaving = true;
+  const k = palette;
+  $('#orderCustom').href = `https://wa.me/${WA}?text=` + encodeURIComponent(`Hi Queen Silk! I'd like a custom saree — Body: ${k.body[pick.body][0]}, Zari: ${k.zari[pick.zari][0]}, Border: ${k.border[pick.border][0]}, Pattern: ${$('#motifs .on').textContent}.`);
+}
+function weaveFrame(){
+  const r = wc.getBoundingClientRect();
+  if (!weaving || r.bottom < 0 || r.top > innerHeight) return;
+  const k = C(), speed = Math.ceil(cols / 5);
+  sx.clearRect(0, 0, W, H);
+  for (let s = 0; s < speed && row < rows; s++) {
+    drawCell(colPos, row, k); colPos++;
+    if (colPos >= cols) { colPos = 0; row++; }
+  }
+  if (row >= rows) { weaving = false; return; }
+  const dir = row % 2 === 0;  // alternate shuttle direction visually
+  const xPos = dir ? colPos * CS : W - colPos * CS;
+  sx.strokeStyle = colorAt(colPos, row, k); sx.lineWidth = 1.5;
+  sx.beginPath(); sx.moveTo(dir ? 0 : W, row * CS + CS / 2); sx.lineTo(xPos, row * CS + CS / 2); sx.stroke();
+  sx.fillStyle = '#d9b46a'; sx.beginPath();
+  if (sx.roundRect) sx.roundRect(xPos - 16, row * CS - 3, 32, CS + 6, 6); else sx.rect(xPos - 16, row * CS - 3, 32, CS + 6);
+  sx.fill(); sx.fillStyle = 'rgba(0,0,0,.35)'; sx.fillRect(xPos - 10, row * CS + CS / 2 - 1, 20, 2);
+}
+// keep the woven cells in step with the shuttle direction
+const _drawCell = drawCell;
+drawCell = function(c, r, k){ _drawCell(r % 2 === 0 ? c : cols - 1 - c, r, k); };
+restartWeave();
+addEventListener('resize', () => { clearTimeout(window._wr); window._wr = setTimeout(restartWeave, 200); });
+
+/* ===================== Collection: tilt + FLIP filter ===================== */
+$('#grid').innerHTML = products.map((p, i) => `
+  <article class="pcard" data-type="${p.type}">
+    <div class="tilt wipe" style="transition-delay:${(i % 4) * 90}ms" data-cursor="view">
+      <img src="${IMG(p.img, 700, 933)}" alt="${p.name}" loading="lazy"><span class="glare"></span>
+      ${p.tag ? `<span class="ptag">${p.tag}</span>` : ''}
+      <div class="pact"><button data-add="${p.id}">Add to bag</button><button class="pw" data-reel="${p.reel}" aria-label="Watch how it's made">${PLAY}</button></div>
+    </div>
+    <div class="pinfo"><div><h3>${p.name}</h3><small>${p.sub}</small></div><div class="pr">${inr(p.price)}<s>${inr(p.mrp)}</s></div></div>
+  </article>`).join('');
+$$('.tilt').forEach(t => {
+  t.addEventListener('pointermove', e => {
+    if (!fine) return;
+    const r = t.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+    t.classList.add('live'); t.style.transitionDelay = '0ms';
+    t.style.transform = `rotateX(${(.5 - y) * 12}deg) rotateY(${(x - .5) * 14}deg) scale(1.02)`;
+    t.style.setProperty('--gx', x * 100 + '%'); t.style.setProperty('--gy', y * 100 + '%');
+  });
+  t.addEventListener('pointerleave', () => { t.classList.remove('live'); t.style.transform = ''; });
+});
+$$('#filters button').forEach(b => b.onclick = () => {
+  $$('#filters button').forEach(x => x.classList.toggle('on', x === b));
+  const cards = $$('.pcard'), first = new Map(cards.map(c => [c, c.getBoundingClientRect()]));
+  cards.forEach(c => c.hidden = !(b.dataset.f === 'all' || c.dataset.type === b.dataset.f));
+  cards.forEach(c => {
+    if (c.hidden) return;
+    const a = first.get(c), n = c.getBoundingClientRect();
+    if (!a.width) { c.animate([{opacity: 0, transform: 'scale(.85) translateY(30px)'}, {opacity: 1, transform: 'none'}], {duration: 700, easing: 'cubic-bezier(.16,1,.3,1)'}); return; }
+    const dx = a.left - n.left, dy = a.top - n.top;
+    if (dx || dy) c.animate([{transform: `translate(${dx}px,${dy}px)`}, {transform: 'none'}], {duration: 850, easing: 'cubic-bezier(.16,1,.3,1)'});
+  });
+});
+
+/* ===================== Flip cards ===================== */
+document.addEventListener('click', e => {
+  const f = e.target.closest('[data-flip]'); if (f) { $('#' + f.dataset.flip).classList.toggle('on'); return; }
+  const front = e.target.closest('.face.front'); if (front && !e.target.closest('button')) front.closest('.flip').classList.add('on');
+});
+$('#tradeForm').onsubmit = e => { e.preventDefault(); e.target.style.display = 'none'; $('#tOk').style.display = 'block'; };
+
+/* ===================== Testimonials: swipe deck ===================== */
+const tdeck = $('#tdeck');
+tdeck.innerHTML = voices.map((v, i) => `<div class="tcard t${i % 5}"><div class="stars">★★★★★</div><p>“${v[0]}”</p><div class="by"><i><img src="${IMG(v[4], 120, 120)}" alt=""></i><div><b>${v[1]}</b><small>${v[2]}</small></div><span class="kind">${v[3]}</span></div></div>`).join('');
+let order = $$('.tcard');
+function layDeck(){
+  order.forEach((c, k) => {
+    c.style.zIndex = 10 - k;
+    c.style.transform = `translateY(${k * 16}px) scale(${1 - k * .05}) rotate(${k ? (k % 2 ? 3 : -3) : 0}deg)`;
+    c.style.opacity = k > 3 ? 0 : 1;
+  });
+}
+layDeck();
+function flyTop(dir){
+  const c = order[0];
+  c.style.transform = `translateX(${dir * 140}%) rotate(${dir * 24}deg)`; c.style.opacity = 0;
+  setTimeout(() => { order.push(order.shift()); c.style.transition = 'none'; layDeck(); void c.offsetWidth; c.style.transition = ''; }, 450);
+}
+function back(){ order.unshift(order.pop()); layDeck(); }
+$('#tNext').onclick = () => flyTop(1); $('#tPrev').onclick = back;
+let tStart = null, tDx = 0;
+tdeck.addEventListener('pointerdown', e => { if (!e.target.closest('.tcard') || e.target.closest('.tcard') !== order[0]) return; tStart = e.clientX; tDx = 0; order[0].classList.add('drag'); order[0].setPointerCapture(e.pointerId); });
+tdeck.addEventListener('pointermove', e => { if (tStart === null) return; tDx = e.clientX - tStart; order[0].style.transform = `translateX(${tDx}px) rotate(${tDx * .06}deg)`; });
+tdeck.addEventListener('pointerup', () => {
+  if (tStart === null) return; tStart = null; order[0].classList.remove('drag');
+  Math.abs(tDx) > 110 ? flyTop(Math.sign(tDx)) : layDeck();
+});
+
+/* ===================== Stores ===================== */
+const states = Object.keys(stores);
+$('#stTabs').innerHTML = states.map((s, i) => `<button class="${i ? '' : 'on'}" data-s="${s}">${s} · ${stores[s].length}</button>`).join('');
+function showStores(s){
+  $$('#stTabs button').forEach(b => b.classList.toggle('on', b.dataset.s === s));
+  $('#stList').innerHTML = stores[s].map(d => `<div class="store"><div><b>${d[0]}</b><small>${d[1]}</small></div><a href="tel:${d[2].replace(/\s/g, '')}">${d[2]}</a></div>`).join('');
+}
+$$('#stTabs button').forEach(b => b.onclick = () => showStores(b.dataset.s));
+showStores(states[0]);
+
+/* ===================== Footer: magnetic letters ===================== */
+const giant = $('#giant');
+giant.innerHTML = [...'Queen'].map(c => `<span>${c}</span>`).join('') + '<span style="width:.25em"></span>' + [...'Silk'].map(c => `<span class="it">${c}</span>`).join('');
+const gl = $$('#giant span');
+giant.addEventListener('pointermove', e => gl.forEach(s => {
+  const r = s.getBoundingClientRect(), d = Math.abs(e.clientX - (r.left + r.width / 2));
+  const k = Math.max(0, 1 - d / 260);
+  s.style.transform = `translateY(${-k * 18}%) scaleY(${1 + k * .25})`;
+}));
+giant.addEventListener('pointerleave', () => gl.forEach(s => s.style.transform = ''));
+
+/* ===================== Bag ===================== */
+const bag = [];
+function renderBag(){
+  $('#bagCount').textContent = bag.length;
+  $('#dTotal').textContent = inr(bag.reduce((s, p) => s + p.price, 0));
+  $('#dItems').innerHTML = bag.length ? bag.map((p, i) => `<div class="ditem"><div class="im"><img src="${IMG(p.img, 200, 260)}" alt=""></div><div><h4>${p.name}</h4><small>${p.sub} · ${inr(p.price)}</small></div><button data-rm="${i}">Remove</button></div>`).join('') : '<p class="dempty">Your bag is empty — for now.</p>';
+}
+document.addEventListener('click', e => {
+  const a = e.target.closest('[data-add]');
+  if (a) { const p = products.find(x => x.id == a.dataset.add); if (p) { bag.push(p); renderBag(); toast(`${p.name} added to bag`); } }
+  const r = e.target.closest('[data-rm]'); if (r) { bag.splice(+r.dataset.rm, 1); renderBag(); }
+});
+const openBag = () => { $('#drawer').classList.add('on'); $('#shade').classList.add('on'); };
+function closeBag(){ $('#drawer').classList.remove('on'); $('#shade').classList.remove('on'); }
+$('#bagBtn').onclick = openBag; $('#dClose').onclick = closeBag; $('#shade').onclick = closeBag;
+$('#toastBtn').onclick = () => { openBag(); $('#toast').classList.remove('on'); };
+renderBag();
+let tt;
+function toast(m, btn = true){ $('#toastTxt').textContent = m; $('#toastBtn').style.display = btn ? '' : 'none'; $('#toast').classList.add('on'); clearTimeout(tt); tt = setTimeout(() => $('#toast').classList.remove('on'), 2800); }
+$('#news').onsubmit = e => { e.preventDefault(); e.target.reset(); toast('Subscribed — new designs coming your way', false); };
+
+/* ===================== Reveal ===================== */
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), {threshold: .15});
+$$('.up').forEach(el => io.observe(el));
+const wio = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.querySelector('.wipe')?.classList.add('in'); wio.unobserve(e.target); } }), {threshold: .1});
+$$('.pcard').forEach(el => wio.observe(el));
+
+/* ===================== Header theme ===================== */
+const hdr = document.querySelector('header'), darks = $$('[data-dark]');
+function headerTheme(){
+  const y = 42;
+  if (hero.getBoundingClientRect().bottom > y + innerHeight * .0 && hero.getBoundingClientRect().bottom > innerHeight) { hdr.className = ''; return; }
+  const dark = darks.some(d => { const r = d.getBoundingClientRect(); return r.top <= y && r.bottom >= y; });
+  hdr.className = dark ? 'on-dark' : 'on-light';
+}
+
+/* ===================== Main loop ===================== */
+let lastT = performance.now(), lastY = scrollY, vel = 0;
+function frame(t){
+  const dt = Math.min((t - lastT) / 1000, .05); lastT = t;
+  vel = lerp(vel, Math.abs(scrollY - lastY), .2); lastY = scrollY;
+
+  // hero
+  const hr = hero.getBoundingClientRect();
+  if (hr.bottom > 0) {
+    const p = heroP(), i0 = Math.min(Math.floor(p), N - 1), f = p - i0;
+    showSaree(clamp(Math.round(p), 0, N - 1));
+    heroPin.style.setProperty('--hbg', mixHex(sarees[i0].bg, sarees[Math.min(i0 + 1, N - 1)].bg, f));
+    heroPin.querySelector('.h-bgword').style.setProperty('--bx', `${-p * 9}vw`);
+    $$('#hList button b').forEach((b, j) => b.style.transform = `scaleX(${j < i0 ? 1 : j === i0 ? (i0 === N - 1 ? 1 : f) : 0})`);
+    $('#hHint').style.opacity = p > .15 ? 0 : 1;
+    if (glOK && three) three.frame(dt, p, vel);
+  }
+
+  // manifesto
+  const lit = $('#lit').getBoundingClientRect();
+  if (lit.top < innerHeight && lit.bottom > 0) {
+    const pr = clamp((innerHeight * .85 - lit.top) / (lit.height + innerHeight * .35), 0, 1);
+    const n = Math.round(pr * litWords.length);
+    litWords.forEach((w, i) => w.classList.toggle('on', i < n));
+  }
+
+  headerTheme();
+  makingFrame();
+  ringFrame();
+  weaveFrame();
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
